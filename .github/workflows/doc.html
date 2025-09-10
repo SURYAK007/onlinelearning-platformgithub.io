@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Appointment App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      color: #333;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #2575fc;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #2575fc;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #6a11cb;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      background: #f0f4ff;
+      padding: 10px;
+      border-radius: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Book a Doctor Appointment</h2>
+    <form id="appointmentForm">
+      <input type="text" id="name" placeholder="Your Name" required>
+      <input type="email" id="email" placeholder="Your Email" required>
+      <input type="date" id="date" required>
+      <select id="doctor" required>
+        <option value="">Select Doctor</option>
+        <option value="Dr. Smith">Dr. Smith</option>
+        <option value="Dr. Emily">Dr. Emily</option>
+        <option value="Dr. John">Dr. John</option>
+      </select>
+      <button type="submit">Book Appointment</button>
+    </form>
+
+    <div class="result" id="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('appointmentForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const date = document.getElementById('date').value;
+      const doctor = document.getElementById('doctor').value;
+
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        ✅ <strong>Appointment Confirmed!</strong><br>
+        👤 Name: ${name}<br>
+        📧 Email: ${email}<br>
+        📅 Date: ${date}<br>
+        🩺 Doctor: ${doctor}
+      `;
+
+      form.reset();
+    });
+  </script>
+
+</body>
+</html>
+
+// AppointmentController.java
+package com.example.appointments;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "*") // allow frontend from any origin
+public class AppointmentController {
+
+    @PostMapping("/appointments")
+    public String bookAppointment(@RequestBody Appointment appointment) {
+        System.out.println("Received: " + appointment);
+        return "Appointment confirmed for " + appointment.getName();
+    }
+}
+
+// Appointment.java
+package com.example.appointments;
+
+public class Appointment {
+    private String name;
+    private String email;
+    private String date;
+    private String doctor;
+
+    // Getters & Setters
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
+
+    public String getDoctor() { return doctor; }
+    public void setDoctor(String doctor) { this.doctor = doctor; }
+
+    @Override
+    public String toString() {
+        return name + ", " + email + ", " + date + ", " + doctor;
+    }
+}
+
+<script>
+    const form = document.getElementById('appointmentForm');
+    const resultDiv = document.getElementById('result');
+  
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+  
+      const appointmentData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        date: document.getElementById('date').value,
+        doctor: document.getElementById('doctor').value
+      };
+  
+      fetch('http://localhost:8080/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointmentData)
+      })
+      .then(response => response.text())
+      .then(data => {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `✅ ${data}`;
+        form.reset();
+      })
+      .catch(error => {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '❌ Error booking appointment';
+        console.error('Error:', error);
+      });
+    });
+  </script>
+  
